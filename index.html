@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>single digit</title>
+    <!-- <script src="http://localhost:3000/socket.io/socket.io.js"></script> -->
+    <!-- <script src="client.js"></script> -->
+</head>
+<style>
+    ul {
+        list-style: none;
+    }
+</style>
+
+<body>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>1</td>
+                <td>Amit</td>
+                <td>
+                    <form action="POST" onsubmit="sendEvent(this)">
+                        <input type="text" name="id" value="1" required>
+                        <input type="submit" value="sendMessage">
+                    </form>
+                </td>
+            </tr>
+            <tr>
+                <td>2</td>
+                <td>soni</td>
+                <td>
+                    <form action="POST" onsubmit="sendEvent(this)">
+                        <input type="text" name="id" value="2" required>
+                        <input type="submit" value="sendMessage">
+                    </form>
+                </td>
+            </tr>
+            <tr>
+                <td>3</td>
+                <td>sita</td>
+                <td>
+                    <form action="POST" onsubmit="sendEvent(this)">
+                        <input type="text" name="id" value="3" required>
+                        <input type="submit" value="sendMessage">
+                    </form>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+
+
+    <ul id="messages"></ul>
+
+
+    <form id="form" action="">
+        <input id="input" autocomplete="off" /><button>Send</button>
+    </form>
+
+    <div style="background: grey;  width:500px; display:flex">
+        <span>coin value</span>
+        <ul style="display:flex ;">
+            <li><button onclick="SelectCoin(1)">1</button></li>
+            <li><button onclick="SelectCoin(5)">5</button></li>
+            <li><button onclick="SelectCoin(10)">10</button></li>
+            <li><button onclick="SelectCoin(50)">50</button></li>
+            <li><button onclick="SelectCoin(100)">100</button></li>
+            <li><button onclick="SelectCoin(1000)">1000</button></li>
+            <li><button onclick="SelectCoin(5000)">5000</button></li>
+        </ul>
+    </div>
+
+    <div style="background: rgb(3, 61, 87);  width:600px; display:flex">
+        <span>Select number</span>
+        <ul style="display:flex ;">
+            <li><button onclick="SelectCard(9,2)"> 9</button></li>
+            <li><button onclick="SelectCard(8,2)"> 8 </button></li>
+            <li><button onclick="SelectCard(7,2)"> 7</button></li>
+            <li><button onclick="SelectCard(6,2)"> 6</button></li>
+            <li><button onclick="SelectCard(5,2)"> 5 </button></li>
+            <li><button onclick="SelectCard(4,2)"> 4</button></li>
+            <li><button onclick="SelectCard(3,2)"> 3 </button></li>
+            <li><button onclick="SelectCard(2,2)"> 2 </button></li>
+            <li><button onclick="SelectCard(13,2)">0 </button></li>
+            <li><button onclick="SelectCard(1,2)"> 1 </button></li>
+
+
+
+        </ul>
+    </div>
+    <button onclick="ClearAllBet()">Clear</button>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        var socketIO = io("http://localhost:5000");
+
+        var userId = prompt("enter user ID");
+
+        socketIO.emit("connected", userId);
+
+        socketIO.on("messageReceived", (data)=>{
+            var html = "<li>"+ data + "</li>";
+            document.getElementById("messages").innerHTML = html + document.getElementById("messages").innerHTML;
+        });
+
+        function sendEvent(form) {
+            event.preventDefault();
+            var msg = prompt("enter message");
+            socketIO.emit("sendEvent", {
+                "myId": userId,
+                "userId": form.id.value,
+                "message": msg
+            });
+        }
+
+
+
+
+
+
+
+        let selectedCoin = 1, selectedNumber;
+
+        let balance = 100;
+        let uid = "Amit123";
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        var messages = document.getElementById('messages');
+        var form = document.getElementById('form');
+        var input = document.getElementById('input');
+
+
+
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+            if (input.value) {
+                socket.emit('chat message', input.value);
+                input.value = '';
+            }
+        });
+
+        socketIO.on('chat message', function (msg) {
+            var item = document.createElement('li');
+            item.textContent = msg;
+            messages.appendChild(item);
+            window.scrollTo(0, document.body.scrollHeight);
+        });
+
+        socketIO.on('message', (payload) => {
+            console.log(payload);
+        });
+        socketIO.on('RoundId', (payload) => {
+            console.log("RoundId" + payload);
+        });
+        socketIO.on('ServerTime', (payload) => {
+            // console.log(payload);
+        });
+        socketIO.on('DrawTime', (payload) => {
+            console.log("draw time ............. " + payload);
+        });
+        socketIO.on('PrevResults', (payload) => {
+            console.log("presults..............." + JSON.stringify(payload));
+        });
+        socketIO.on('Counter', (payload) => {
+            // console.log("counter..............." + payload);
+        });
+        socketIO.on('Result', (payload) => {
+            console.log("...............reault    " + payload);
+        });
+
+
+    </script>
+
+</body>
+
+</html>
