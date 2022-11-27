@@ -7,9 +7,8 @@ const { Server } = require('socket.io');
 const io = new Server(server);
 const mongoose = require('mongoose');
 const GameData = require('./models/gameData');
-const RoundData = require('./models/gameData');
-const { json } = require('express');
-
+const RoundData = require('./models/roundData');
+ 6
 let port = process.env.PORT;
 const mongoDB = process.env.MONGO_DB_URL;
 
@@ -132,8 +131,8 @@ const StartRound = async () => {
     round_id = date.getDate().toString() + (date.getMonth() + 1).toString() + date.getFullYear().toString() + "-" + date.getHours().toString() + date.getMinutes().toString() + date.getSeconds().toString();
 
     //create Roundid in DB
-    const roundData = RoundData({
-        roundId: roundid,
+    const roundData = new RoundData({
+        roundId: round_id,
         totalBets: 0,
         result: "-",
 
@@ -141,6 +140,8 @@ const StartRound = async () => {
     await roundData.save().then(() => {
         // console.log(roundData);
     }).catch(err => console.log(err));
+
+    
 
     io.emit("RoundId", round_id);
 
@@ -204,7 +205,7 @@ const CalculateAndUpdateDrawTime = async () => {
                     $push: {
                         previousResults: {
                             "time": d_time,
-                            "result": result,
+                            "result": res,
                         }
                     }
                 },

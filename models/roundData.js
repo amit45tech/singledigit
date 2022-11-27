@@ -22,7 +22,7 @@ const roundDataSchema = new mongoose.Schema({
                     amountBet: Number,
                 }
             ],
-            winning: String,
+            winning: Number,
         }
     ],
     

@@ -1,4 +1,5 @@
 const express = require('express');
+const RoundData = require('../models/roundData');
 const router = express.Router();
 
 const UserData = require('../models/userData');
@@ -32,11 +33,11 @@ router.post("/checkUser", async (req, res) => {
 // get and update balance -----------------------------------
 router.put("/updateBalance", async (req, res) => {
     try {
-        const id = req.body.UserId;
+        const uid = req.body.UserId;
         const newBal = req.body.Balance;
 
         // console.log(id, newBal);
-        const update = await UserData.updateOne({ 'userId': id }, { '$set': { 'balance': newBal } });
+        const update = await UserData.updateOne({ 'userId': uid }, { '$set': { 'balance': newBal } });
 
         res.status(200).json(update);
 
@@ -65,18 +66,25 @@ router.get("/getBalance/:uid", async (req, res) => {
 router.put("/updateRoundHistory", async (req, res) => {
     try {
         const uid = req.body.UserId;
-        // const roundid = req.body.RoundID;
+        const roundid = req.body.RoundID;
         const detail = req.body.Details;
+        let winAmt = 0;
 
-        console.log(uid, roundid, detail);
+        let winBet = await detail.bets.find(x => x.selectedNo === detail.result)
+        
+        if(winBet !== undefined){
+            winAmt = winBet.amountBet * 9;    // 9 times bet amt winning
+        }
+
+        // console.log(uid, roundid, detail);
 
         const update = await UserData.updateOne({ 'userId': uid }, {
             $push: {
                 betHistory: {
                     "roundId": detail.roundId,
-                    "dateTime": detail.date,
-                    "bets": detail.betAmt,
-                    "winning": detail.betBtn,
+                    "dateTime": detail.dateTime,
+                    "bets": detail.bets,
+                    "winning": winAmt,
                 }
             }
         });
@@ -86,9 +94,9 @@ router.put("/updateRoundHistory", async (req, res) => {
                 $push: {
                     "betsDetails": {
                         "userId": detail.userid,
-                        "dateTime": detail.date,
-                        "bets": detail.betAmt,
-                        "winning": detail.betBtn,
+                        "dateTime": detail.dateTime,
+                        "bets": detail.bets,
+                        "winning": winAmt,
                     }
                 }
             });
@@ -101,8 +109,22 @@ router.put("/updateRoundHistory", async (req, res) => {
 });
 
 
+// check winners
 
+router.get("/checkWinner/:uid/:roundid", async (req, res) => {
+    try {
+        const uid = req.params.uid;
+        const roundid = req.params.roundid;
 
+        const winner = await UserData.findOne({ 'userId': uid, 'roundId': roundid });
+        
+        
 
+        res.status(200).json(winner.betHistory.winning);
+        // console.log(id , userBal);
 
+    } catch (error) {
+        res.status(500).json(error);
+    }
+});
 
